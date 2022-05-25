@@ -1,4 +1,4 @@
-package rest
+package sdk
 import (
 	"context"
 	"fmt"

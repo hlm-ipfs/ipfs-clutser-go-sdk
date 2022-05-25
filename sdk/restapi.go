@@ -4,7 +4,7 @@
 // The implented API is based on the common.API component (refer to module
 // description there). The only thing this module does is to provide route
 // handling for the otherwise common API component.
-package rest
+package sdk
 
 import (
 	"context"

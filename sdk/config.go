@@ -1,4 +1,4 @@
-package rest
+package sdk
 
 import (
 	"net/http"
