@@ -168,6 +168,12 @@ type Config struct {
 
 	// LogLevel defines the verbosity of the logging facility
 	LogLevel string
+	//Your AccessKey
+	AccessKey string
+	//Your SecretKey
+	SecretKey string
+	//Your AppID
+	AppID string
 }
 
 // AsTemplateFor creates client configs from resolved multiaddresses

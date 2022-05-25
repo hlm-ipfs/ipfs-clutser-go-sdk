@@ -82,7 +82,7 @@ func (c *defaultClient) doRequest(
 	if body != nil {
 		r.ContentLength = -1 // this lets go use "chunked".
 	}
-
+	c.setSignHeader(r)
 	ctx = trace.NewContext(ctx, span)
 	r = r.WithContext(ctx)
 	return c.client.Do(r)
