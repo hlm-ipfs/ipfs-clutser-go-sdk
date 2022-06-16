@@ -5,10 +5,346 @@ info:
 
 servers:
   - url: http://103.44.247.16:18001
-  - url: http://127.0.0.1:8787
 
 tags:
   - name: Helmsman NFT Storage
+paths:
+  /api/market/storage/create:
+    post:
+      tags:
+        - 创建存储订单
+      summary: Store a file
+      description: |
+        
+        ### 第一步上传文件到IPFS拿到文件Cid
+      
+        ### 第二步上传文件到Filecoin
+        
+        备注:单文件最好不要超过100M
+      operationId: storageCreate
+      requestBody:
+        required: true
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/StorageCreateRequest'
+      responses:
+        '200':
+          description: 正常返回，状态码包含在status字段
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: 状态码  
+                    default: 200
+                    format: int32
+                  code:
+                    type: string
+                    description: 业务端错误码
+                    default: ""
+                  message:
+                    type: string
+                    description: 错误表述信息
+                    default: ""
+                  value:
+                    type: string
+                    description: NFT Storage DID.  
+                    example: "{\"Value\":\"s1655259352723101\"}"
+  /api/market/storage/find:
+    post:
+      tags:
+        - 查看存储订单
+      summary: Store a file
+      description: |
+          ### 返回上传的文件在ipfs固定状态,filecoin密封状态
+      operationId: storageFind
+      requestBody:
+        required: true
+        content:
+          'application/json':
+            schema:
+              type: object
+              properties:
+                Value:
+                  type: string
+                  description: 订单编号
+                  example: "{\"Value\":\"s1655259352723101\"}"
+      responses:
+        '200':
+          description: 正常返回，状态码包含在status字段
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: 状态码  
+                    default: 200
+                    format: int32
+                  code:
+                    type: string
+                    description: 业务端错误码
+                    default: ""
+                  message:
+                    type: string
+                    description: 错误表述信息
+                    default: ""
+                  value:
+                    description: json字符串  
+                    $ref: '#/components/schemas/StorageInfo'
+  /api/market/retrieval/list:
+    post:
+      tags:
+        - 查看存储订单列表
+      summary: Store a file
+      description: |
+        
+        ### 返回存储订单列表
+      operationId: retrievalList
+      requestBody:
+        required: true
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/StorageListRequest'
+      responses:
+        '200':
+          description: 正常返回，状态码包含在status字段
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: 状态码  
+                    default: 200
+                    format: int32
+                  code:
+                    type: string
+                    description: 业务端错误码
+                    default: ""
+                  message:
+                    type: string
+                    description: 错误表述信息
+                    default: ""
+                  value:
+                    description: json字符串  
+                    $ref: '#/components/schemas/StorageListResponse'
+  /api/v0/add:
+    post:
+      tags:
+        - 上传文件到ipfs
+      summary: Store a file
+      description: |
+        ### 返回
+      operationId: uploadIPFS
+      parameters:
+        - in: query
+          name: encrypt
+          schema:
+            type: boolean
+            default: false
+          description: 是否需要ipfs节点加密
+        - in: query
+          name: quiet
+          schema:
+            type: boolean
+          description: Write minimal output. Required no
+        - in: query
+          name: quieter
+          schema:
+            type: boolean
+          description: Write only final hash. Required no    
+        - in: query
+          name: silent
+          schema:
+            type: boolean
+          description: Write no output. Required no  
+        - in: query
+          name: progress
+          schema:
+            type: boolean
+          description: Stream progress data. Required no
+        - in: query
+          name: trickle
+          schema:
+            type: boolean
+          description: Use trickle-dag format for dag generation. Required no
+        - in: query
+          name: only-hash
+          schema:
+            type: boolean
+          description: Only chunk and hash - do not write to disk. Required no
+        - in: query
+          name: wrap-with-directory
+          schema:
+            type: boolean
+          description:  Wrap files with a directory object. Required no
+        - in: query
+          name: chunker
+          schema:
+            type: string
+          description:  Chunking algorithm, size-[bytes], rabin-[min]-[avg]-[max] or buzhash. Default size-262144. Required no
+        - in: query
+          name: pin
+          schema:
+            type: boolean
+            default: true           
+          description:  Pin this object when adding. Default true. Required no
+        - in: query
+          name: raw-leaves
+          schema:
+            type: boolean
+          description:  Use raw blocks for leaf nodes. Required no
+        - in: query
+          name: nocopy
+          schema:
+            type: boolean
+          description:  Add the file using filestore. Implies raw-leaves. (experimental). Required no
+        - in: query
+          name: fscache
+          schema:
+            type: boolean
+          description:  Check the filestore for pre-existing blocks. (experimental). Required no
+        - in: query
+          name: cid-version
+          schema:
+            type: boolean
+          description:  CID version. Defaults to 0 unless an option that depends on CIDv1 is passed. Passing version 1 will cause the raw-leaves option to default to true. Required no
+        - in: query
+          name: hash
+          schema:
+            type: string
+          description:  Hash function to use. Implies CIDv1 if not sha2-256. (experimental). Default sha2-256. Required no
+        - in: query
+          name: inline
+          schema:
+            type: boolean
+          description:  Inline small blocks into CIDs. (experimental). Required no
+        - in: query
+          name: inline-limit
+          schema:
+            type: integer
+            default: 32
+          description:  Maximum block size to inline. (experimental). Default 32. Required no     
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: 正常返回，状态码包含在status字段
+          content:
+            'application/json':
+              schema:
+                type: object
+                properties:
+                  Name:
+                    type: string
+                    description: 文件名  
+                  Hash:
+                    type: string
+                    description: hash (cid)
+                  Size:
+                    type: string
+                    description: 文件大小
+                  Password:
+                    type: string
+                    description: 密码
+        '500':
+            description: RPC endpoint returned an error
+        '400':
+            description: Malformed RPC, argument type error, etc   
+        '403':
+            description: RPC call forbidden
+        '404':
+            description: RPC endpoint doesn't exist           
+        '405':
+            description: HTTP Method Not Allowed                                     
+      servers:
+        - url: https://127.0.0.1:5001
+          description: ipfs私网服务器
+  /api/v0/get:
+      post:
+        tags:
+          - 从ipfs下载文件
+        summary: download a file
+        description: |
+          ### 返回
+        operationId: downloadIPFS
+        parameters:
+          - in: query
+            name: encrypt
+            schema:
+              type: boolean
+              default: false
+            description: 是否需要ipfs节点加密
+          - in: query
+            name: arg
+            schema:
+              type: string
+            description: The path to the IPFS object(s) to be outputted. Required yes
+          - in: query
+            name: output
+            schema:
+              type: string
+            description: The path where the output should be stored. Required no  
+          - in: query
+            name: archive
+            schema:
+              type: boolean
+            description: Output a TAR archive. Required no
+          - in: query
+            name: compress
+            schema:
+              type: boolean
+            description: Compress the output with GZIP compression. Required no
+          - in: query
+            name: compression-level
+            schema:
+              type: integer
+            description: The level of compression (1-9). Required no
+          - in: query
+            name: progress
+            schema:
+              type: boolean
+            description: Stream progress data. Default true. Required no
+          - in: query
+            name: password
+            schema:
+              type: string
+            description:  解密密钥  
+        responses:
+          '200':
+            description: The request was processed or is being processed (streaming)
+            content:
+              'application/json':
+                 example: {}
+              'text/plain':
+                 example: ""
+          '500':
+            description: RPC endpoint returned an error
+          '400':
+            description: Malformed RPC, argument type error, etc   
+          '403':
+            description: RPC call forbidden
+          '404':
+            description: RPC endpoint doesn't exist           
+          '405':
+            description: HTTP Method Not Allowed                 
+        servers:
+          - url: https://127.0.0.1:5001
+            description: ipfs私网服务器
 components:
   schemas:
     StorageCreateRequest:
@@ -73,7 +409,6 @@ components:
           properties:
            Value:
             type: string
-            default: 0
             format: int64   
         Tags:
           type: object
@@ -160,6 +495,7 @@ components:
             description: 结束时间           
             default: 0
             format: int64                
+     example: {"Index":1,"Size":10}
     StorageListResponse:
      type: object
      properties:    
@@ -271,6 +607,11 @@ components:
               description: create返回订单编号        
   securitySchemes:
     bearerAuth:
+      description: |
+        业务系统鉴权
+        ```js
+        Authorization: Idp eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiMCIsInNjb3BlcyI6WyJC56uv5pmu6YCa55So5oi3Il0sIm1ldGFkYXRhIjp7IjAiOiIxNzRhZjNiMGY4NDBmOTYyYWJjNjc5MjkyMWRjMTdiMiIsIjEiOiIwIiwiMTAiOiI1MSIsIjExIjoieGlhb21pbmciLCIxMiI6InhpYW9taW5nIiwiMTMiOiJodWFuZ2RvbmciLCIxNCI6IjI0MDAiLCIxNSI6IjMxNTM2MDAwMDAwMDAwMDAwIiwiMTYiOiJlZDI1ZmQzZi1lMzZhLTQ1OTAtYWQwYi1iOGU0ZjdmMDdhZmMiLCIyIjoiQuerr2FwcCJ9LCJleHAiOjE2ODY3MzU1NTMsImlzcyI6ImdvdG8iLCJzdWIiOiI1MSJ9.gUpH9oGopeFBv_ENapgN6hA0Rx4dOhaB6TJtry19A58h4b7XQYxDX5P_0dryJ3v4iGFUDQX0dnQJrbEbTr9T2KaBlo0Raovdc_DGMPmeuZSRxE9WHC0JpPuyJaaNN2BWg0rJSeUG7Z9ZVQnJFgfraeqsOhaJ0ypOrKrzX9FWiis
+        ```    
       type: http
       scheme: bearer
       bearerFormat: JWT
