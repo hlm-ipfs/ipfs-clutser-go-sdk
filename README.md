@@ -45,3 +45,6 @@ func main()  {
 	fmt.Println(pinOut)
 }
 ```
+
+### api文档
+[https://hlm-ipfs.github.io/ipfs-clutser-go-sdk/#/](https://hlm-ipfs.github.io/ipfs-clutser-go-sdk/#/)
